@@ -3,21 +3,42 @@
 # curl https://raw.githubusercontent.com/vjspranav/RomBuildScript/ryzen5/script_build.sh>script_build.sh
 # Make necessary changes before executing script
 
+# Export some variables
+user=
+lunch=
+device_codename=z2_plus
+build_type=userdebug
+tg_username=
+OUT_PATH="out/target/product/$device_codename"
+START=$(date +%s)
+
+function finish {
+rm -rf /tmp/manlocktest.lock;
+read -r -d '' msg <<EOT
+<b>Build Stopped</b>
+<b>Device:-</b> ${device_codename}
+<b>Started by:-</b> ${tg_username}
+EOT
+telegram-send --format html "$msg" --config /ryzen.conf
+}
+
 # Check is Lock File exists, if not create it and set trap on exit
 if { set -C; 2>/dev/null > /tmp/manlocktest.lock; }; then
- trap "rm -f /tmp/manlocktest.lock" EXIT
+ trap finish EXIT SIGINT
 else
  uname2=$(ls -l /tmp/manlocktest.lock | awk '{print $3}');
  echo "${uname2} Building… exiting"
  exit
 fi
 
-# Export some variables
-user=vjspranav
-device_codename=z2_plus
-build_type=userdebug
-use_ccache=yes
-make_clean=no
+# Send message to TG
+read -r -d '' msg <<EOT
+<b>Build Started</b>
+<b>Device:-</b> ${device_codename}
+<b>Started by:-</b> ${tg_username}
+EOT
+
+telegram-send --format html "$msg" --config /ryzen.conf
 
 # Colors makes things beautiful
 export TERM=xterm
@@ -69,6 +90,18 @@ rm -rf ${OUT_PATH}/${ROM_ZIP} #clean rom zip in any case
 
 # Time to build
 source build/envsetup.sh
-lunch "$lunch_command"_"$device_codename"-"$build_type"
-make bacon -j12
+lunch "$lunch"_"$device_codename"-"$build_type"
+make stag -j24
 
+END=$(date +%s)
+TIME=$(echo $((${END}-${START})) | awk '{print int($1/60)" Minutes and "int($1%60)" Seconds"}')
+
+# Send message to TG
+read -r -d '' suc <<EOT
+<b>Build Finished</b>
+<b>Time:-</b> ${TIME}
+<b>Device:-</b> ${device_codename}
+<b>Started by:-</b> ${tg_username}
+EOT
+
+telegram-send --format html "$suc" --config /ryzen.conf
