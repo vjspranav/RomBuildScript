@@ -1,10 +1,23 @@
 #!/bin/bash
 
-# curl https://raw.githubusercontent.com/vjspranav/RomBuildScript/main/script_build.sh>script_build.sh
+# curl https://raw.githubusercontent.com/vjspranav/RomBuildScript/ryzen5/script_build.sh>script_build.sh
 # Make necessary changes before executing script
 
+# Check is Lock File exists, if not create it and set trap on exit
+if { set -C; 2>/dev/null > /tmp/manlocktest.lock; }; then
+ trap "rm -f /tmp/manlocktest.lock" EXIT
+else
+ uname2=$(ls -l /tmp/manlocktest.lock | awk '{print $3}');
+ echo "${uname2} Building… exiting"
+ exit
+fi
+
 # Export some variables
-user=
+user=vjspranav
+device_codename=z2_plus
+build_type=userdebug
+use_ccache=yes
+make_clean=no
 
 # Colors makes things beautiful
 export TERM=xterm
@@ -57,4 +70,5 @@ rm -rf ${OUT_PATH}/${ROM_ZIP} #clean rom zip in any case
 # Time to build
 source build/envsetup.sh
 lunch "$lunch_command"_"$device_codename"-"$build_type"
-make bacon -j24
+make bacon -j12
+
