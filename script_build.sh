@@ -6,11 +6,12 @@
 # Export some variables
 user=
 lunch=
-device_codename=z2_plus
+device_codename=avicii
 build_type=userdebug
 tg_username=
 OUT_PATH="out/target/product/$device_codename"
 START=$(date +%s)
+use_ccache=yes
 
 function finish {
 rm -rf /tmp/manlocktest.lock;
@@ -23,13 +24,25 @@ telegram-send --format html "$msg" --config /ryzen.conf
 }
 
 # Check is Lock File exists, if not create it and set trap on exit
-if { set -C; 2>/dev/null > /tmp/manlocktest.lock; }; then
- trap finish EXIT SIGINT
-else
- uname2=$(ls -l /tmp/manlocktest.lock | awk '{print $3}');
- echo "${uname2} Building… exiting"
- exit
-fi
+#if { set -C; 2>/dev/null > /tmp/manlocktest.lock; }; then
+# trap finish EXIT SIGINT
+#else
+# uname2=$(ls -l /tmp/manlocktest.lock | awk '{print $3}');
+# echo "${uname2} Building… exiting"
+# exit
+#fi
+
+i=0
+echo -n "Test Line might be deleted"
+while { set -C; ! 2>/dev/null > /tmp/manlocktest.lock; }; do
+  ((i=i+1))
+  uname2=$(ls -l /tmp/manlocktest.lock | awk '{print $3}');
+  echo -n -e "\r${uname2} Building. Waiting ${i} times"
+  sleep 10
+done
+trap finish EXIT SIGINT
+
+echo -e "Build starting thank you for waiting"
 
 # Send message to TG
 read -r -d '' msg <<EOT
@@ -86,7 +99,7 @@ wait
 echo -e ${cya}"Images deleted from OUT dir"${txtrst};
 fi
 
-rm -rf ${OUT_PATH}/${ROM_ZIP} #clean rom zip in any case
+rm -rf ${OUT_PATH}/*.zip #clean rom zip in any case
 
 # Time to build
 source build/envsetup.sh
@@ -96,12 +109,32 @@ make stag -j24
 END=$(date +%s)
 TIME=$(echo $((${END}-${START})) | awk '{print int($1/60)" Minutes and "int($1%60)" Seconds"}')
 
-# Send message to TG
+ROM=${OUT_PATH}/StagOS*.zip
+if [ -f $ROM ]; then
+
+cp $ROM /home/${user}/downloads/
+filename="$(basename $ROM)"
+LINK="http://ryzenbox.cryllicbuster273.me/downloads/${user}/${filename}"
 read -r -d '' suc <<EOT
 <b>Build Finished</b>
 <b>Time:-</b> ${TIME}
 <b>Device:-</b> ${device_codename}
 <b>Started by:-</b> ${tg_username}
+<b>Download:-</b> <a href="${LINK}">here</a>
 EOT
+
+else
+
+# Send message to TG
+cp out/error.log /home/${user}/downloads/error.txt
+read -r -d '' suc <<EOT
+<b>Build Errored</b>
+<b>Time:-</b> ${TIME}
+<b>Device:-</b> ${device_codename}
+<b>Started by:-</b> ${tg_username}
+<b>Check error:-</b> <a href="http://ryzenbox.cryllicbuster273.me/downloads/${user}/error.txt">here</a>
+EOT
+
+fi
 
 telegram-send --format html "$suc" --config /ryzen.conf
