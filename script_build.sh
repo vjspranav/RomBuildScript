@@ -12,15 +12,20 @@ tg_username=
 OUT_PATH="out/target/product/$device_codename"
 START=$(date +%s)
 use_ccache=yes
+stopped=0
+finish=0
 
 function finish {
-rm -rf /tmp/manlocktest.lock;
-read -r -d '' msg <<EOT
-<b>Build Stopped</b>
-<b>Device:-</b> ${device_codename}
-<b>Started by:-</b> ${tg_username}
-EOT
-telegram-send --format html "$msg" --config /ryzen.conf
+  stopped=1
+  rm -rf /tmp/manlocktest.lock;
+  read -r -d '' msg <<EOT
+  <b>Build Stopped</b>
+  <b>Device:-</b> ${device_codename}
+  <b>Started by:-</b> ${tg_username}
+  EOT
+  if [ $finish = 0 ] ; then
+    telegram-send --format html "$msg" --config /ryzen.conf
+  fi
 }
 
 # Check is Lock File exists, if not create it and set trap on exit
@@ -137,4 +142,6 @@ EOT
 
 fi
 
-telegram-send --format html "$suc" --config /ryzen.conf
+if [ $stopped = 0 ] ; then
+  telegram-send --format html "$suc" --config /ryzen.conf
+fi
