@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# curl https://raw.githubusercontent.com/vjspranav/RomBuildScript/ryzen5/script_build.sh>script_build.sh
+# curl https://raw.githubusercontent.com/vjspranav/RomBuildScript/ryzen7/script_build.sh>script_build.sh
 # Make necessary changes before executing script
 
 # Export some variables
@@ -14,6 +14,7 @@ START=$(date +%s)
 use_ccache=yes
 stopped=0
 finish=0
+BUILDFILE="buildlog"_$START.txt
 
 function finish {
   stopped=1
@@ -47,13 +48,16 @@ while { set -C; ! 2>/dev/null > /tmp/manlocktest.lock; }; do
 done
 trap finish EXIT SIGINT
 
-echo -e "Build starting thank you for waiting"
+echo -e "\rBuild starting thank you for waiting"
 
+touch /home/${user}/downloads/buildlogs/${BUILDFILE}
+BLINK="http://ryzenbox.cryllicbuster273.me/downloads/${user}/buildlogs/${BUILDFILE}"
 # Send message to TG
 read -r -d '' msg <<EOT
 <b>Build Started</b>
 <b>Device:-</b> ${device_codename}
 <b>Started by:-</b> ${tg_username}
+<b>Console log:-</b> <a href="${BLINK}">here</a>
 EOT
 
 telegram-send --format html "$msg" --config /ryzen.conf
@@ -109,7 +113,7 @@ rm -rf ${OUT_PATH}/*.zip #clean rom zip in any case
 # Time to build
 source build/envsetup.sh
 lunch "$lunch"_"$device_codename"-"$build_type"
-make stag -j24
+make bacon -16 |& tee  "/home/${user}/downloads/buildlogs/${BUILDFILE}"
 
 END=$(date +%s)
 TIME=$(echo $((${END}-${START})) | awk '{print int($1/60)" Minutes and "int($1%60)" Seconds"}')
