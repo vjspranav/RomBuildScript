@@ -51,7 +51,7 @@ trap finish EXIT SIGINT
 echo -e "\rBuild starting thank you for waiting"
 
 touch /home/${user}/downloads/buildlogs/${BUILDFILE}
-BLINK="http://ryzenbox.cryllicbuster273.me/downloads/${user}/buildlogs/${BUILDFILE}"
+BLINK="http://ryzenbox.me/downloads/${user}/buildlogs/${BUILDFILE}"
 # Send message to TG
 read -r -d '' msg <<EOT
 <b>Build Started</b>
@@ -113,7 +113,7 @@ rm -rf ${OUT_PATH}/*.zip #clean rom zip in any case
 # Time to build
 source build/envsetup.sh
 lunch "$lunch"_"$device_codename"-"$build_type"
-make bacon -16 |& tee  "/home/${user}/downloads/buildlogs/${BUILDFILE}"
+make bacon -j16 |& tee  "/home/${user}/downloads/buildlogs/${BUILDFILE}"
 
 END=$(date +%s)
 TIME=$(echo $((${END}-${START})) | awk '{print int($1/60)" Minutes and "int($1%60)" Seconds"}')
@@ -123,7 +123,7 @@ if [ -f $ROM ]; then
 
 cp $ROM /home/${user}/downloads/
 filename="$(basename $ROM)"
-LINK="http://ryzenbox.cryllicbuster273.me/downloads/${user}/${filename}"
+LINK="http://ryzenbox.me/downloads/${user}/${filename}"
 read -r -d '' suc <<EOT
 <b>Build Finished</b>
 <b>Time:-</b> ${TIME}
@@ -141,7 +141,7 @@ read -r -d '' suc <<EOT
 <b>Time:-</b> ${TIME}
 <b>Device:-</b> ${device_codename}
 <b>Started by:-</b> ${tg_username}
-<b>Check error:-</b> <a href="http://ryzenbox.cryllicbuster273.me/downloads/${user}/error.txt">here</a>
+<b>Check error:-</b> <a href="http://ryzenbox.me/downloads/${user}/error.txt">here</a>
 EOT
 
 fi
