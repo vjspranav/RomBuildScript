@@ -50,8 +50,9 @@ trap finish EXIT SIGINT
 
 echo -e "\rBuild starting thank you for waiting"
 
+mkdir -p /home/${user}/downloads/buildlogs/
 touch /home/${user}/downloads/buildlogs/${BUILDFILE}
-BLINK="http://ryzenbox.me/downloads/${user}/buildlogs/${BUILDFILE}"
+BLINK="http://${user}.ryzenbox.me/downloads/buildlogs/${BUILDFILE}"
 # Send message to TG
 read -r -d '' msg <<EOT
 <b>Build Started</b>
@@ -123,7 +124,7 @@ if [ -f $ROM ]; then
 
 cp $ROM /home/${user}/downloads/
 filename="$(basename $ROM)"
-LINK="http://ryzenbox.me/downloads/${user}/${filename}"
+LINK="http://${user}.ryzenbox.me/${filename}"
 read -r -d '' suc <<EOT
 <b>Build Finished</b>
 <b>Time:-</b> ${TIME}
@@ -141,7 +142,7 @@ read -r -d '' suc <<EOT
 <b>Time:-</b> ${TIME}
 <b>Device:-</b> ${device_codename}
 <b>Started by:-</b> ${tg_username}
-<b>Check error:-</b> <a href="http://ryzenbox.me/downloads/${user}/error.txt">here</a>
+<b>Check error:-</b> <a href="http://${user}.ryzenbox.me/error.txt">here</a>
 EOT
 
 fi
