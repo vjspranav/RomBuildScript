@@ -23,7 +23,7 @@ function finish {
   <b>Build Stopped</b>
   <b>Device:-</b> ${device_codename}
   <b>Started by:-</b> ${tg_username}
-  EOT
+EOT
   if [ $finish = 0 ] ; then
     telegram-send --format html "$msg" --config /ryzen.conf
   fi
