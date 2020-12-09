@@ -52,7 +52,7 @@ echo -e "\rBuild starting thank you for waiting"
 
 mkdir -p /home/${user}/downloads/buildlogs/
 touch /home/${user}/downloads/buildlogs/${BUILDFILE}
-BLINK="http://${user}.ryzenbox.me/downloads/buildlogs/${BUILDFILE}"
+BLINK="http://${user}.ryzenbox.me/buildlogs/${BUILDFILE}"
 # Send message to TG
 read -r -d '' msg <<EOT
 <b>Build Started</b>
