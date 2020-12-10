@@ -152,3 +152,4 @@ fi
 if [ $stopped = 0 ] ; then
   telegram-send --format html "$suc" --config /ryzen.conf
 fi
+finish=1
