@@ -28,20 +28,26 @@ EOT
   fi
 }
 
-# Check is Lock File exists, if not create it and set trap on exit
-#if { set -C; 2>/dev/null > /tmp/manlocktest.lock; }; then
-# trap finish EXIT SIGINT
-#else
-# uname2=$(ls -l /tmp/manlocktest.lock | awk '{print $3}');
-# echo "${uname2} Building… exiting"
-# exit
-#fi
-
 i=0
 echo -n "Test Line might be deleted"
 while { set -C; ! 2>/dev/null > /tmp/manlocktest.lock; }; do
   ((i=i+1))
   uname2=$(ls -l /tmp/manlocktest.lock | awk '{print $3}');
+  if [ $uname2 = $USER ]; then
+        echo -e "Warning you can't wait while you are building"
+        exit 1
+  elif [ $i -gt 3600 ]; then
+        hours=$((i/3600))
+        minutes=$(( $((i/60)) - $((hours*60))))
+        seconds=$(( i - $((hours*60*60)) -  $((minutes*60))))
+        pr="$hours hours $minutes minutes $seconds seconds"
+  elif [ $i -lt 60 ]; then
+        pr="$i seconds"
+  else
+        minutes=$((i/60))
+        seconds=$(( i - $((minutes*60))))
+        pr="$minutes minutes $seconds seconds"
+  fi
   echo -n -e "\r${uname2} Building. Waiting ${i} times"
   sleep 10
 done
