@@ -15,7 +15,6 @@ use_ccache=yes
 make_clean=no
 stopped=0
 finish=0
-BUILDFILE="buildlog"_$START.txt
 
 function finish {
   stopped=1
@@ -57,6 +56,11 @@ trap finish EXIT SIGINT
 
 echo -e "\rBuild starting thank you for waiting"
 
+
+#Start Counting build time after build started we don't want wait time included
+START=$(date +%s)
+BUILDFILE="buildlog"_$START.txt
+
 mkdir -p /home/${user}/downloads/buildlogs/
 touch /home/${user}/downloads/buildlogs/${BUILDFILE}
 BLINK="http://${user}.ryzenbox.me/buildlogs/${BUILDFILE}"
@@ -69,9 +73,6 @@ read -r -d '' msg <<EOT
 EOT
 
 telegram-send --format html "$msg" --config /ryzen.conf
-
-#Start Counting build time after build started we don't want wait time included
-START=$(date +%s)
 
 # Colors makes things beautiful
 export TERM=xterm
