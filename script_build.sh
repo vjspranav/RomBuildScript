@@ -4,6 +4,7 @@
 # Make necessary changes before executing script
 
 # Export some variables
+# make_clean (yes/no/installclean/deviceclean)
 user=
 lunch=
 device_codename=avicii
@@ -11,6 +12,7 @@ build_type=userdebug
 tg_username=
 OUT_PATH="out/target/product/$device_codename"
 use_ccache=yes
+make_clean=no
 stopped=0
 finish=0
 BUILDFILE="buildlog"_$START.txt
@@ -101,6 +103,12 @@ wait
 echo -e ${grn}"CCACHE Cleared"${txtrst};
 fi
 
+rm -rf ${OUT_PATH}/*.zip #clean rom zip in any case
+
+# Time to build
+source build/envsetup.sh
+lunch "$lunch"_"$device_codename"-"$build_type"
+
 # Clean build
 if [ "$make_clean" = "yes" ];
 then
@@ -117,11 +125,14 @@ wait
 echo -e ${cya}"Images deleted from OUT dir"${txtrst};
 fi
 
-rm -rf ${OUT_PATH}/*.zip #clean rom zip in any case
+if [ "$make_clean" = "deviceclean" ];
+then
+make deviceclean
+rm -rf ${OUT_PATH}/${ROM_ZIP}
+wait
+echo -e ${cya}"Device dir deleted from OUT dir"${txtrst};
+fi
 
-# Time to build
-source build/envsetup.sh
-lunch "$lunch"_"$device_codename"-"$build_type"
 make bacon -j16 |& tee  "/home/${user}/downloads/buildlogs/${BUILDFILE}"
 
 END=$(date +%s)
