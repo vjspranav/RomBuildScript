@@ -37,6 +37,9 @@ while ; do
 	while read line; do
 		waiting+=("$line")
 	done < $waiting_file
+	if grep -q "$user"  "$waiting_file"; then
+  		echo -n -e "Warning you can't wait twice"
+	fi
 	if [{ set -C; ! 2>/dev/null > /tmp/manlocktest.lock; } ] ; then 
 		echo -n -e "Test Line might be deleted"
 		if [ $i -eq 0 ]; then
