@@ -33,6 +33,10 @@ i=0
 declare -a waiting=()
 waiting_file='/tmp/buildlist'
 while ; do
+	waiting=("")
+	while read line; do
+		waiting+=("$line")
+	done < $waiting_file
 	if [{ set -C; ! 2>/dev/null > /tmp/manlocktest.lock; } ] ; then 
 		echo -n -e "Test Line might be deleted"
 		if [ $i -eq 0 ]; then
@@ -45,10 +49,6 @@ while ; do
 			echo "${waiting[@]}" >| $waiting_file
 			echo -n -e "File written"
 		fi
-		waiting=("")
-		while read line; do
-			waiting+=("$line")
-		done < $waiting_file
 		wait_no=1
 		((i=i+1))
 		uname2=$(ls -l /tmp/manlocktest.lock | awk '{print $3}');
@@ -84,7 +84,6 @@ while ; do
 	done
 done 
 trap finish EXIT SIGINT
-
 
 #Start Counting build time after build started we don't want wait time included
 START=$(date +%s)
