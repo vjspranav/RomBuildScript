@@ -45,6 +45,7 @@ while ; do
 			echo "${waiting[@]}" >| $waiting_file
 			echo -n -e "File written"
 		fi
+		waiting=("")
 		while read line; do
 			waiting+=("$line")
 		done < $waiting_file
