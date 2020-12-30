@@ -30,31 +30,59 @@ EOT
 }
 
 i=0
-echo -n "Test Line might be deleted"
-while { set -C; ! 2>/dev/null > /tmp/manlocktest.lock; }; do
-  ((i=i+1))
-  uname2=$(ls -l /tmp/manlocktest.lock | awk '{print $3}');
-  if [ $uname2 = $USER ]; then
-        echo -e "Warning you can't wait while you are building"
-        exit 1
-  elif [ $i -gt 3600 ]; then
-        hours=$((i/3600))
-        minutes=$(( $((i/60)) - $((hours*60))))
-        seconds=$(( i - $((hours*60*60)) -  $((minutes*60))))
-        pr="$hours hours $minutes minutes $seconds seconds"
-  elif [ $i -lt 60 ]; then
-        pr="$i seconds"
-  else
-        minutes=$((i/60))
-        seconds=$(( i - $((minutes*60))))
-        pr="$minutes minutes $seconds seconds"
-  fi
-  echo -n -e "\r${uname2} Building. Waiting ${i} times"
-  sleep 10
-done
+declare -a waiting=()
+waiting_file='/tmp/buildlist'
+while ; do
+	if [{ set -C; ! 2>/dev/null > /tmp/manlocktest.lock; } ] ; then 
+		echo -n -e "Test Line might be deleted"
+		if [ $i -eq 0 ]; then
+			waiting=("")
+			while read line; do
+				waiting+=("$line")
+			done < $waiting_file
+			waiting+=("${user}")
+			echo -n -e "Name added in waiting list"
+			echo "${waiting[@]}" >| $waiting_file
+			echo -n -e "File written"
+		fi
+		while read line; do
+			waiting+=("$line")
+		done < $waiting_file
+		wait_no=1
+		((i=i+1))
+		uname2=$(ls -l /tmp/manlocktest.lock | awk '{print $3}');
+		if [ $uname2 = $user ]; then
+			echo -n -e "Warning you can't wait while you are building"
+			exit 1
+		elif [ $i -gt 3600 ]; then
+			hours=$((i/3600))
+			minutes=$(( $((i/60)) - $((hours*60))))
+			seconds=$(( i - $((hours*60*60)) -  $((minutes*60))))
+			pr="$hours hours $minutes minutes $seconds seconds"
+		elif [ $i -lt 60 ]; then
+			pr="$i seconds"
+		else
+			minutes=$((i/60))
+			seconds=$(( i - $((minutes*60))))
+			pr="$minutes minutes $seconds seconds"
+		fi
+		echo -n -e"\r${uname2} Building. Waiting ${i} times"
+		echo -n -e"\r People in Queue :- "
+		for waiter in ${waiting[@]}; do
+			echo -n -e "$wait_no. is $waiter"
+			((wait_no=wait_no+1))
+		done
+		sleep 1
+	fi
+	if [ $user = waiting ]; then
+		echo -n -e "\rBuild starting thank you for waiting"
+		exit 1
+	else
+		echo -n -e "A build done , moving to next in queue"
+	fi 
+	done
+done 
 trap finish EXIT SIGINT
-
-echo -e "\rBuild starting thank you for waiting"
 
 
 #Start Counting build time after build started we don't want wait time included
