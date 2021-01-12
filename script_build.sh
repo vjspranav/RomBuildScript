@@ -63,13 +63,13 @@ while { set -C; ! 2>/dev/null > /tmp/manlocktest.lock; }; do
         hours=$((i/3600))
         minutes=$(( $((i/60)) - $((hours*60))))
         seconds=$(( i - $((hours*60*60)) -  $((minutes*60))))
-        pr="$hours $h $minutes $m $seconds $s"
+        pr="$hours $h $minutes $m $seconds $s      "
   elif [ $i -lt 60 ]; then
-        pr="$i $s"
+        pr="$i $s  "
   else
         minutes=$((i/60))
         seconds=$(( i - $((minutes*60))))
-        pr="$minutes $m $seconds $s"
+        pr="$minutes $m $seconds $s    "
   fi
 
   echo -n -e "\r${uname2} Building. Waiting for $pr"
