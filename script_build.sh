@@ -37,6 +37,10 @@ fi
 #clean rom zip in any case
 rm -rf ${OUT_PATH}/*.zip
 
+# Build
+source build/envsetup.sh
+lunch ${lunch}_${device_codename}-${build_variabt}
+
 # Clean build
 if [ "$make_clean" = "yes" ];
 then
@@ -61,9 +65,6 @@ wait
 echo -e ${cya}"Device dir deleted from OUT dir"${txtrst};
 fi
 
-# Build
-source build/envsetup.sh
-lunch ${lunch}_${device_codename}-${build_variabt}
 ${make_command} -j16
 
 END=$(date +%s)
