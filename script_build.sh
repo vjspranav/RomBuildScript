@@ -39,7 +39,7 @@ rm -rf ${OUT_PATH}/*.zip
 
 # Build
 source build/envsetup.sh
-lunch ${lunch}_${device_codename}-${build_variabt}
+lunch ${lunch}_${device_codename}-${build_variant}
 
 # Clean build
 if [ "$make_clean" = "yes" ];
