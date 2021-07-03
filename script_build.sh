@@ -67,7 +67,7 @@ fi
 
 ${make_command} -j16
 
-cp ${OUT_PATH}/*.zip /home/$user/downloads/
+cp ${OUT_PATH}/*.zip /home/$user/downloads/jenkins/
 
 END=$(date +%s)
 TIME=$(echo $((${END}-${START})) | awk '{print int($1/60)" Minutes and "int($1%60)" Seconds"}')
