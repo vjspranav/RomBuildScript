@@ -26,7 +26,7 @@ fi
 if [ "$with_ccache" = "clean" ];
 then
 export CCACHE_EXEC=$(which ccache)
-export CCACHE_DIR=/var/lib/jenkins/$user/ccache
+export CCACHE_DIR=/home/$user/ccache
 ccache -C
 export USE_CCACHE=1
 ccache -M 75G
