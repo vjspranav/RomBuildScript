@@ -20,7 +20,7 @@ then
 echo -e ${blu}"CCACHE is enabled for this build"${txtrst}
 export CCACHE_EXEC=$(which ccache)
 export USE_CCACHE=1
-export CCACHE_DIR=/var/lib/jenkins/$user/ccache
+export CCACHE_DIR=/home/$user/ccache
 ccache -M 75G
 fi
 if [ "$with_ccache" = "clean" ];
