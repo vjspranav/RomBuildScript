@@ -1,6 +1,8 @@
 #!/bin/bash
 user=vjspranav
 OUT_PATH="out/target/product/$device_codename"
+ROM_ZIP=StagOS*.zip
+tg_username=@vjspranav
 
 # Colors makes things beautiful
 export TERM=xterm
@@ -10,9 +12,6 @@ export TERM=xterm
     blu=$(tput setaf 4)             #  blue
     cya=$(tput setaf 6)             #  cyan
     txtrst=$(tput sgr0)             #  Reset
-
-#Start Counting build time after build started we don't want wait time included
-START=$(date +%s)
 
 # Ccache
 if [ "$with_ccache" = "yes" ];
@@ -67,7 +66,9 @@ fi
 
 ${make_command} -j16
 
-cp ${OUT_PATH}/*.zip /home/$user/downloads/jenkins/
-
-END=$(date +%s)
-TIME=$(echo $((${END}-${START})) | awk '{print int($1/60)" Minutes and "int($1%60)" Seconds"}')
+if [ `ls $OUT_PATH/$ROM_ZIP 2>/dev/null | wc -l` != "0" ]; then
+cp ${OUT_PATH}/${ROM_ZIP} /home/$user/downloads/jenkins/
+echo https://$user.ryzenbox.me/jenkins/$(basename $(ls $OUT_PATH/$ROM_ZIP))> download_link
+else
+exit 1
+fi
